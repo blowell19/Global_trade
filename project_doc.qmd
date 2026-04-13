@@ -1,0 +1,69 @@
+---
+title: "project_doc"
+author: "Baxter Lowell"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+```{r}
+# read in data (both USA and global oil exports)
+
+library(tidyverse)
+library(readr)
+
+global_exports_oil <- read.csv(here::here("data/global_oil_exports.csv"), row.names = NULL)
+
+usa_exports <- read.csv(here::here("data/trade_data.csv"), row.names = NULL)
+
+# cleaning up USA oil exports data
+
+usa_exports_clean = usa_exports %>%
+  select(c("reporterISO", "partnerISO", "cmdCode", "qtyUnitAbbr", "altQtyUnitAbbr", "cifvalue")) %>%
+  rename(
+    "Exporter" = "reporterISO",
+    "Partner" = "partnerISO",
+    "Product" = "cmdCode",
+    "quantity_kg" = "qtyUnitAbbr",
+    "quantity_bbl" = "altQtyUnitAbbr",
+    "value_usd" = "cifvalue"
+  )
+  
+
+global_exports_clean = global_exports_oil %>%
+  select(c("reporterISO", "partnerISO", "cmdCode", "qtyUnitAbbr", "altQtyUnitAbbr", "cifvalue")) %>%
+  rename(
+    "Exporter" = "reporterISO",
+    "Partner" = "partnerISO",
+    "Product" = "cmdCode",
+    "quantity_kg" = "qtyUnitAbbr",
+    "quantity_bbl" = "altQtyUnitAbbr",
+    "value_usd" = "cifvalue"
+  )
+```
+
+# Final Project: Exploring Global Oil Trade
+
+For my final project, I will be exploring exports of crude oil from different nations around the world. Oil trade is constantly brought up both in economic, political and military contexts, especially given the strain on global oil trade due to the current conflict in Iran and the uncertainty surrounding the Straight of Hormuz. Crude oil is widely considered the most valuable commodity on earth, and is used to provide energy for transportation systems and is a key ingredient in plastics, pharmaceuticals, and other synthetic material production. I thought it would be interesting to explore who trades with who - and how much, to help understand how disruptions may affect different countries based on their export/import statistics. 
+
+Some questions I look to answer include: With whom does the USA export the most oil to? Which countries are most reliant on outside sources for oil? 
+
+I also aim to create a shiny app that uses the database to give users a way to explore who trades with who. By creating an interactive model, I want users to be able to use my app to help answer their own questions, whether they are driven by economic, political, or strategic interests.
+
+For my project, I am using data from 2023 (the most recent public data) from the UN Comtrade database, which is a comprehensive database that tracks global trade data. It is used by organizations such as the World Bank to help track global trade trends. The data is also relied on by governments, academics, economists, businesses and political scientists to help them make informed decisions about global trade.
+
+
+# First Graph: Who does the United States export oil to?
+
+```{r}
+usa_exports_clean %>%
+  arrange(desc(value_usd))%>%
+  filter(Partner != "World") %>%
+
+ggplot(data = ., aes(x = "Partner"))+
+  geom_histogram()
+```
+
+
+
