@@ -12,6 +12,7 @@ editor: visual
 
 library(tidyverse)
 library(readr)
+library(dplyr)
 
 global_exports_oil <- read.csv(here::here("data/global_oil_exports.csv"), row.names = NULL)
 
@@ -28,6 +29,12 @@ usa_exports_clean = usa_exports %>%
     "quantity_kg" = "qtyUnitAbbr",
     "quantity_bbl" = "altQtyUnitAbbr",
     "value_usd" = "cifvalue"
+  )%>%
+  mutate(
+    Partner = recode(Partner, 
+                     "Turkiye" = "T\u00FCrkiye",
+                     "Korea" = "Rep. of Korea"
+                     )
   )
   
 
@@ -58,11 +65,42 @@ For my project, I am using data from 2023 (the most recent public data) from the
 
 ```{r}
 usa_exports_clean %>%
-  arrange(desc(value_usd))%>%
+  arrange(desc(quantity_bbl))%>%
   filter(Partner != "World") %>%
+  filter(Partner != "Other Asia, nes")%>%
+  slice_head(n = 10)%>%
+  mutate(
+    Partner = fct_reorder(Partner, quantity_bbl, .desc = TRUE))%>%
 
-ggplot(data = ., aes(x = "Partner"))+
-  geom_histogram()
+ggplot(data = ., aes(x = Partner, y = quantity_bbl))+
+  geom_col()+
+  labs(title = "Top 10 US Crude Oil Export Destinations (2023)",
+       x = "Partners",
+       y = "Annual Barrels (BBL)",
+       caption = "*Data from UN Comtrade Database 2023 Data"
+       )+
+  theme_bw()+
+  coord_flip()
+  
+```
+
+According to the 2023 UN Comtrade Data, the United States, who has lead the world in crude oil production for the past several years, imported the most crude oil to the Netherlands. The Netherlands acts as the gateway for oil imports for the EU. As Europe continues to move away from sanctioned Russian oil, I wonder if they will continue to rely on US oil, or even other sources.
+
+Another data point I found interesting was Canada. Canada has the third most oil reserves on the planet, so I was curious as to why the United States exports so much crude to Canada. Despite their vast reserves, Canada does not produce as much oil as many other countries, and it can be more cost effective for US companies to export oil to Canadian refineries than to ship them across the US to be refined, which explains the high exports found in the data.
+
+# Second Graph: Who does the United States Export Oil to by region?
+```{r}
+library(fuzzyjoin)
+
+hpi_df <- read_csv("https://raw.githubusercontent.com/highamm/ds234_quarto/main/data_online/hpi-tidy.csv")
+
+usa_export_region <- stringdist_inner_join(
+  hpi_df,
+  usa_exports_clean,
+  by = c("Country" = "Partner"),
+  max_dist = 2
+)
+ 
 ```
 
 
