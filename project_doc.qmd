@@ -21,40 +21,43 @@ usa_exports <- read.csv(here::here("data/trade_data.csv"), row.names = NULL)
 # cleaning up USA oil exports data
 
 usa_exports_clean = usa_exports %>%
-  select(c("reporterISO", "partnerISO", "cmdCode", "qtyUnitAbbr", "altQtyUnitAbbr", "cifvalue")) %>%
+  select(c("reporterISO","reporterDesc", "partnerDesc", "partnerISO", "cmdDesc", "altQty", "fobvalue")) %>%
   rename(
     "Exporter" = "reporterISO",
-    "Partner" = "partnerISO",
-    "Product" = "cmdCode",
-    "quantity_kg" = "qtyUnitAbbr",
-    "quantity_bbl" = "altQtyUnitAbbr",
-    "value_usd" = "cifvalue"
+    "Importer" = "partnerISO",
+    "Product" = "cmdDesc",
+    "quantity_bbl" = "altQty",
+    "value_usd" = "fobvalue"
   )%>%
   mutate(
     Partner = recode(Partner, 
-                     "Turkiye" = "T\u00FCrkiye",
                      "Korea" = "Rep. of Korea"
                      )
   )
   
 
 global_exports_clean = global_exports_oil %>%
-  select(c("reporterISO", "partnerISO", "cmdCode", "qtyUnitAbbr", "altQtyUnitAbbr", "cifvalue")) %>%
+   select(c("reporterISO", "partnerISO", "reporterDesc", "partnerDesc", "cmdDesc", "altQty", "fobvalue")) %>%
   rename(
     "Exporter" = "reporterISO",
-    "Partner" = "partnerISO",
-    "Product" = "cmdCode",
-    "quantity_kg" = "qtyUnitAbbr",
-    "quantity_bbl" = "altQtyUnitAbbr",
-    "value_usd" = "cifvalue"
-  )
+    "Importer" = "partnerISO",
+    "Product" = "cmdDesc",
+    "quantity_bbl" = "altQty",
+    "value_usd" = "fobvalue"
+  )%>%
+  mutate(
+    Partner = recode(Importer, 
+                     "Korea" = "Rep. of Korea"
+                     )
+  )%>%
+   slice(-560)
 ```
 
 # Final Project: Exploring Global Oil Trade
 
 For my final project, I will be exploring exports of crude oil from different nations around the world. Oil trade is constantly brought up both in economic, political and military contexts, especially given the strain on global oil trade due to the current conflict in Iran and the uncertainty surrounding the Straight of Hormuz. Crude oil is widely considered the most valuable commodity on earth, and is used to provide energy for transportation systems and is a key ingredient in plastics, pharmaceuticals, and other synthetic material production. I thought it would be interesting to explore who trades with who - and how much, to help understand how disruptions may affect different countries based on their export/import statistics. 
 
-Some questions I look to answer include: With whom does the USA export the most oil to? Which countries are most reliant on outside sources for oil? 
+Some questions I look to answer include: With whom does the USA export the most oil to? Which countries are most reliant on outside sources for oil? Do high export/importers see a better quality of life?
 
 I also aim to create a shiny app that uses the database to give users a way to explore who trades with who. By creating an interactive model, I want users to be able to use my app to help answer their own questions, whether they are driven by economic, political, or strategic interests.
 
@@ -65,16 +68,16 @@ For my project, I am using data from 2023 (the most recent public data) from the
 
 ```{r}
 usa_exports_clean %>%
+  filter(Partner != "W00") %>%
+  filter(partnerDesc != "Other Asia, nes")%>%
   arrange(desc(quantity_bbl))%>%
-  filter(Partner != "World") %>%
-  filter(Partner != "Other Asia, nes")%>%
-  slice_head(n = 10)%>%
+  slice_head(n = 20)%>%
   mutate(
-    Partner = fct_reorder(Partner, quantity_bbl, .desc = TRUE))%>%
+    partnerDesc = fct_reorder(partnerDesc, quantity_bbl, .desc = TRUE))%>%
 
-ggplot(data = ., aes(x = Partner, y = quantity_bbl))+
+ggplot(data = ., aes(x = partnerDesc, y = quantity_bbl))+
   geom_col()+
-  labs(title = "Top 10 US Crude Oil Export Destinations (2023)",
+  labs(title = "Top 20 US Crude Oil Export Destinations (2023)",
        x = "Partners",
        y = "Annual Barrels (BBL)",
        caption = "*Data from UN Comtrade Database 2023 Data"
@@ -88,20 +91,33 @@ According to the 2023 UN Comtrade Data, the United States, who has lead the worl
 
 Another data point I found interesting was Canada. Canada has the third most oil reserves on the planet, so I was curious as to why the United States exports so much crude to Canada. Despite their vast reserves, Canada does not produce as much oil as many other countries, and it can be more cost effective for US companies to export oil to Canadian refineries than to ship them across the US to be refined, which explains the high exports found in the data.
 
-# Second Graph: Who does the United States Export Oil to by region?
+# Second Graph: Many countries rely on oil as a resource for powering transportation, machinery, industries such as plastic, and more. Since oil is considered a key economic resource, I want to see if there is a clear correlation to the amount of oil imported to a country and it's quality of life. I also wanted to color the points by region, to see what regions of the world most rely on imported oil.
+
 ```{r}
 library(fuzzyjoin)
-
+library(plotly)
 hpi_df <- read_csv("https://raw.githubusercontent.com/highamm/ds234_quarto/main/data_online/hpi-tidy.csv")
 
-usa_export_region <- stringdist_inner_join(
+global_export_region <- stringdist_inner_join(
   hpi_df,
-  usa_exports_clean,
-  by = c("Country" = "Partner"),
+  global_exports_clean,
+  by = c("Country" = "partnerDesc"),
   max_dist = 2
 )
- 
+# graph 2: Relating oil exports to life expectancy
+
+global_export_region1 <- global_export_region %>%
+  filter(Partner == "W00")
+  
+region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = quantity_bbl, color = Region, label = Country))+
+  geom_point()+
+  theme_bw()+
+  scale_color_viridis_d()
+
+ggplotly(p = region_plot, tooltip = "label")
 ```
+
+While there is no clear correlation that the more barrels of oil the US exports to a country relates to a higher life expectancy, there are some important takeaways from this graph. For one, the coloring of the points reveals that the majority of US partners are in the Western World and Latin America. This makes sense considering the United States has close economic partnerships with most of Europe, and that Latin American countries share the same hemisphere with the US, making it easier to ship oil via the US as opposed to oil producing countries in the Middle East.
 
 
 
