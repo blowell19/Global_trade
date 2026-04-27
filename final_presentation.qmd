@@ -1,0 +1,20 @@
+---
+title: "Project_prezi"
+author: "Baxter Lowell"
+format: revealjs
+editor: visual
+---
+*load data in
+
+
+## Data Introduction
+
+
+
+## Question(s) of Interest
+
+
+
+## Subsequent Slides of Graphs
+
+
