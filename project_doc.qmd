@@ -30,7 +30,7 @@ usa_exports_clean = usa_exports %>%
     "value_usd" = "fobvalue"
   )%>%
   mutate(
-    Partner = recode(Partner, 
+    partnerDesc = recode(partnerDesc, 
                      "Korea" = "Rep. of Korea"
                      )
   )
@@ -46,7 +46,7 @@ global_exports_clean = global_exports_oil %>%
     "value_usd" = "fobvalue"
   )%>%
   mutate(
-    Partner = recode(Importer, 
+    partnerDesc = recode(partnerDesc, 
                      "Korea" = "Rep. of Korea"
                      )
   )%>%
@@ -68,7 +68,7 @@ For my project, I am using data from 2023 (the most recent public data) from the
 
 ```{r}
 usa_exports_clean %>%
-  filter(Partner != "W00") %>%
+  filter(Importer != "W00") %>%
   filter(partnerDesc != "Other Asia, nes")%>%
   arrange(desc(quantity_bbl))%>%
   slice_head(n = 20)%>%
@@ -98,26 +98,71 @@ library(fuzzyjoin)
 library(plotly)
 hpi_df <- read_csv("https://raw.githubusercontent.com/highamm/ds234_quarto/main/data_online/hpi-tidy.csv")
 
-global_export_region <- stringdist_inner_join(
+global_export_region <- stringdist_full_join(
   hpi_df,
   global_exports_clean,
-  by = c("Country" = "partnerDesc"),
+  by = c("Country" = "reporterDesc"),
   max_dist = 2
 )
 # graph 2: Relating oil exports to life expectancy
 
 global_export_region1 <- global_export_region %>%
-  filter(Partner == "W00")
+  filter(Importer == "W00")%>%
+  filter(quantity_bbl > 0)%>%
   
 region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = quantity_bbl, color = Region, label = Country))+
   geom_point()+
   theme_bw()+
-  scale_color_viridis_d()
+  scale_color_viridis_d()+
+  labs(title = "Life Expectancy Based on Crude Oil Exports",
+       x = " Life Expectancy",
+       y = "Barrels Exported",
+       caption = "*data from 2023 UN Comtrade Data & Happy Planet Index")
 
 ggplotly(p = region_plot, tooltip = "label")
 ```
 
-While there is no clear correlation that the more barrels of oil the US exports to a country relates to a higher life expectancy, there are some important takeaways from this graph. For one, the coloring of the points reveals that the majority of US partners are in the Western World and Latin America. This makes sense considering the United States has close economic partnerships with most of Europe, and that Latin American countries share the same hemisphere with the US, making it easier to ship oil via the US as opposed to oil producing countries in the Middle East.
+This is an interactive graph that shows Life Expectancy (from the Happy Planet Index dataset) vs quantity of oil exported in 2023. My goal of this visual was to explore if countries life expectancy correlated to how much oil they exported, thinking that the money from the sales of oil might contribute to a prosperous economy, which may lead to a higher quality of life, hence a higher life expectancy. I also colored the points by region, to try and show if there were certain patterns by region to show who if there are any outliers by region.
+
+While there is no clear correlation from this graph that exporting oil significantly relates to a country's life expectancy, there are a couple interesting points to note. For one, Kuwait leads the world in exports, and also seemingly enjoys a relatively high life expectancy. In another instance, two countries that are in similar areas of the world, Kazakhstan and Azerbaijan, have drastically different amounts of exports, yet share similar life expectancy numbers. I think it is safe to conclude that life expectancy cannot be explained by simply one variable, and there are likely many other factors that contribute to it.
+
+
+# Shiny App: Network Graphs to Explain Trading Partnerships
+```{r}
+library(rvest)
+library(tidygraph)
+library(ggraph)
+
+
+network_graph_data <- global_export_region %>%
+  rename(
+    from = reporterDesc,
+    to = partnerDesc,
+    barrels = quantity_bbl
+  )
+
+edges <- network_graph_data %>%
+  filter(to != "W00") %>%
+  select(from, to, barrels) %>%
+  filter(!is.na(from) & !is.na(to))
+
+nodes <- network_graph_data %>%
+  distinct() %>%
+  filter(!is.na(from) & !is.na(to))
+
+network_obj <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+library(ggraph)
+ggraph(network_obj |> mutate(centrality = centrality_authority()),
+                            layout = "fr") +
+  geom_edge_link(aes(width = barrels), alpha = 0.7, show.legend = FALSE) +
+  geom_node_point(aes(colour = Region,
+                      size = centrality), show.legend = TRUE) +
+  scale_edge_width(range = c(0.5, 3)) +
+  geom_node_text(aes(label = label), repel = TRUE)
+```
+
+
 
 
 
