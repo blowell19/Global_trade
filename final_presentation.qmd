@@ -130,6 +130,8 @@ region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = 
 ggplotly(p = region_plot, tooltip = "label")
 ```
 
+# Graph 3: Network Graph
+
 ```{r}
 library(rvest)
 library(tidygraph)
