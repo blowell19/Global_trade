@@ -1,1 +1,14 @@
-# Global_trade
+# Untitled
+Baxter Lowell
+
+### Data
+
+For this project I am looking at global crude oil trade data from 2023.
+My data comes from the United Nations Comtrade Data set, which is a
+comprehensive database for global trade, including hundreds of products,
+imports and exports, and more. I also am using the Happy Planet Index to
+introduce some additional variables.
+
+### Questions
+
+### 
