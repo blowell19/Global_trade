@@ -1,7 +1,9 @@
 ---
 title: "Project Presentation"
 author: "Baxter Lowell"
-format: revealjs
+format: 
+  revealjs:
+    theme: "sky"
 editor: visual
 ---
 
@@ -51,10 +53,11 @@ global_exports_clean = global_exports_oil %>%
    slice(-560)
 ```
 
-
-## Data/Project Introduction
+## Introduction
 
 For my final project I am looking at global crude oil trade data from 2023. My data comes from the United Nations Comtrade Data set, which is a comprehensive database for global trade, including hundreds of products, imports and exports, and more. I also am using the Happy Planet Index to introduce some additional variables.
+
+## Data/Variables
 
 These are the following variables of interest for my project:
 
@@ -74,7 +77,7 @@ Life Expectancy, Population, Governance Rank, GDP Per capita.
 
 Who does the US export oil to? Does exporting oil prop up an economy well enough to directly relate to a higher quality of life? What do trade networks look like for varying countries across the globe?
 
-## Graphs
+## Graph 1: USA Crude Oil Exports
 
 ```{r}
 usa_exports_clean %>%
@@ -95,6 +98,8 @@ ggplot(data = ., aes(x = partnerDesc, y = quantity_bbl))+
   theme_bw()+
   coord_flip()
 ```
+
+# Graph 2: Oil Exports vs Life Expectancy
 
 ```{r}
 library(fuzzyjoin)
@@ -124,7 +129,6 @@ region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = 
 
 ggplotly(p = region_plot, tooltip = "label")
 ```
-
 
 ```{r}
 library(rvest)
