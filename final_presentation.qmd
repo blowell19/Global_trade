@@ -1,20 +1,176 @@
 ---
-title: "Project_prezi"
+title: "Project Presentation"
 author: "Baxter Lowell"
 format: revealjs
 editor: visual
 ---
-*load data in
+
+```{r}
+# read in data (both USA and global oil exports)
+
+library(tidyverse)
+library(readr)
+library(dplyr)
+
+global_exports_oil <- read.csv(here::here("data/global_oil_exports.csv"), row.names = NULL)
+
+usa_exports <- read.csv(here::here("data/trade_data.csv"), row.names = NULL)
+
+# cleaning up USA oil exports data
+
+usa_exports_clean = usa_exports %>%
+  select(c("reporterISO","reporterDesc", "partnerDesc", "partnerISO", "cmdDesc", "altQty", "fobvalue")) %>%
+  rename(
+    "Exporter" = "reporterISO",
+    "Importer" = "partnerISO",
+    "Product" = "cmdDesc",
+    "quantity_bbl" = "altQty",
+    "value_usd" = "fobvalue"
+  )%>%
+  mutate(
+    partnerDesc = recode(partnerDesc, 
+                     "Korea" = "Rep. of Korea"
+                     )
+  )
+  
+
+global_exports_clean = global_exports_oil %>%
+   select(c("reporterISO", "partnerISO", "reporterDesc", "partnerDesc", "cmdDesc", "altQty", "fobvalue")) %>%
+  rename(
+    "Exporter" = "reporterISO",
+    "Importer" = "partnerISO",
+    "Product" = "cmdDesc",
+    "quantity_bbl" = "altQty",
+    "value_usd" = "fobvalue"
+  )%>%
+  mutate(
+    partnerDesc = recode(partnerDesc, 
+                     "Korea" = "Rep. of Korea"
+                     )
+  )%>%
+   slice(-560)
+```
 
 
-## Data Introduction
+## Data/Project Introduction
 
+For my final project I am looking at global crude oil trade data from 2023. My data comes from the United Nations Comtrade Data set, which is a comprehensive database for global trade, including hundreds of products, imports and exports, and more. I also am using the Happy Planet Index to introduce some additional variables.
 
+These are the following variables of interest for my project:
+
+Exporter - The country that is exporting the good.
+
+Importer - The country that is importing the good.
+
+quantity_bbl - Quantity in Barrels of oil.
+
+value_usd - The value of oil traded in USD
+
+Region - Region of the world, assigned to each country.
+
+Life Expectancy, Population, Governance Rank, GDP Per capita.
 
 ## Question(s) of Interest
 
+Who does the US export oil to? Does exporting oil prop up an economy well enough to directly relate to a higher quality of life? What do trade networks look like for varying countries across the globe?
+
+## Graphs
+
+```{r}
+usa_exports_clean %>%
+  filter(Importer != "W00") %>%
+  filter(partnerDesc != "Other Asia, nes")%>%
+  arrange(desc(quantity_bbl))%>%
+  slice_head(n = 20)%>%
+  mutate(
+    partnerDesc = fct_reorder(partnerDesc, quantity_bbl, .desc = TRUE))%>%
+
+ggplot(data = ., aes(x = partnerDesc, y = quantity_bbl))+
+  geom_col()+
+  labs(title = "Top 20 US Crude Oil Export Destinations (2023)",
+       x = "Partners",
+       y = "Annual Barrels (BBL)",
+       caption = "*Data from UN Comtrade Database 2023 Data"
+       )+
+  theme_bw()+
+  coord_flip()
+```
+
+```{r}
+library(fuzzyjoin)
+library(plotly)
+hpi_df <- read_csv("https://raw.githubusercontent.com/highamm/ds234_quarto/main/data_online/hpi-tidy.csv")
+
+global_export_region <- stringdist_full_join(
+  hpi_df,
+  global_exports_clean,
+  by = c("Country" = "reporterDesc"),
+  max_dist = 2
+)
+# graph 2: Relating oil exports to life expectancy
+
+global_export_region1 <- global_export_region %>%
+  filter(Importer == "W00")%>%
+  filter(quantity_bbl > 0)
+  
+region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = quantity_bbl, color = Region, label = Country))+
+  geom_point()+
+  theme_bw()+
+  scale_color_viridis_d()+
+  labs(title = "Life Expectancy Based on Crude Oil Exports",
+       x = " Life Expectancy",
+       y = "Barrels Exported",
+       caption = "*data from 2023 UN Comtrade Data & Happy Planet Index")
+
+ggplotly(p = region_plot, tooltip = "label")
+```
 
 
-## Subsequent Slides of Graphs
+```{r}
+library(rvest)
+library(tidygraph)
+library(ggraph)
 
 
+network_graph_data <- global_export_region %>%
+  rename(
+    from = reporterDesc,
+    to = partnerDesc,
+    barrels = quantity_bbl
+  )
+
+nodes <- network_graph_data %>%
+  select(to, from, Country, Region)%>%
+  filter(!is.na(from) & !is.na(to)) %>%
+  distinct(Country, Region)%>%
+  slice(-89)%>%
+  rename(name = Country)
+
+valid_nodes <- nodes$name
+
+edges <- left_join(network_graph_data, nodes, by = join_by(Country == name)) %>%
+  filter(to != "World") %>%
+  select(from, to, barrels) %>%
+  filter(!is.na(from) & !is.na(to))
+
+# the following came from Claude, with the prompt : why am I getting an error in my edgelist saying there are NA's present, when I have checked for NA values?
+
+edges <- edges %>%
+  filter(from %in% valid_nodes & to %in% valid_nodes)
+
+# End of Claude code
+
+network_obj <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+library(ggraph)
+ggraph(network_obj |> mutate(centrality = centrality_authority()),
+                            layout = "fr") +
+  geom_edge_link(aes(width = barrels), alpha = 0.7, show.legend = FALSE) +
+  geom_node_point(aes(colour = Region,
+                      size = centrality), show.legend = TRUE) +
+  scale_edge_width(range = c(0.5, 3)) +
+  geom_node_text(aes(label = name), repel = TRUE)+
+  scale_colour_viridis_d()
+```
+
+Not Done yet: Shiny App of network graph, where user can select a country and an additional variable to color points by.

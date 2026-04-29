@@ -50,19 +50,18 @@ global_exports_clean = global_exports_oil %>%
                      "Korea" = "Rep. of Korea"
                      )
   )%>%
-   slice(-560)
+   slice(-560)2
 ```
 
 # Final Project: Exploring Global Oil Trade
 
-For my final project, I will be exploring exports of crude oil from different nations around the world. Oil trade is constantly brought up both in economic, political and military contexts, especially given the strain on global oil trade due to the current conflict in Iran and the uncertainty surrounding the Straight of Hormuz. Crude oil is widely considered the most valuable commodity on earth, and is used to provide energy for transportation systems and is a key ingredient in plastics, pharmaceuticals, and other synthetic material production. I thought it would be interesting to explore who trades with who - and how much, to help understand how disruptions may affect different countries based on their export/import statistics. 
+For my final project, I will be exploring exports of crude oil from different nations around the world. Oil trade is constantly brought up both in economic, political and military contexts, especially given the strain on global oil trade due to the current conflict in Iran and the uncertainty surrounding the Straight of Hormuz. Crude oil is widely considered the most valuable commodity on earth, and is used to provide energy for transportation systems and is a key ingredient in plastics, pharmaceuticals, and other synthetic material production. I thought it would be interesting to explore who trades with who - and how much, to help understand how disruptions may affect different countries based on their export/import statistics.
 
 Some questions I look to answer include: With whom does the USA export the most oil to? Which countries are most reliant on outside sources for oil? Do high export/importers see a better quality of life?
 
 I also aim to create a shiny app that uses the database to give users a way to explore who trades with who. By creating an interactive model, I want users to be able to use my app to help answer their own questions, whether they are driven by economic, political, or strategic interests.
 
 For my project, I am using data from 2023 (the most recent public data) from the UN Comtrade database, which is a comprehensive database that tracks global trade data. It is used by organizations such as the World Bank to help track global trade trends. The data is also relied on by governments, academics, economists, businesses and political scientists to help them make informed decisions about global trade.
-
 
 # First Graph: Who does the United States export oil to?
 
@@ -91,7 +90,7 @@ According to the 2023 UN Comtrade Data, the United States, who has lead the worl
 
 Another data point I found interesting was Canada. Canada has the third most oil reserves on the planet, so I was curious as to why the United States exports so much crude to Canada. Despite their vast reserves, Canada does not produce as much oil as many other countries, and it can be more cost effective for US companies to export oil to Canadian refineries than to ship them across the US to be refined, which explains the high exports found in the data.
 
-# Second Graph: Many countries rely on oil as a resource for powering transportation, machinery, industries such as plastic, and more. Since oil is considered a key economic resource, I want to see if there is a clear correlation to the amount of oil imported to a country and it's quality of life. I also wanted to color the points by region, to see what regions of the world most rely on imported oil.
+# Second Graph:  Since oil is considered a key economic resource that is highly valued, I want to see if there is a clear correlation to the amount of oil exported from a country and it's life expectancy. I also wanted to color the points by region, to see what regions of the world most rely on imported oil.
 
 ```{r}
 library(fuzzyjoin)
@@ -126,8 +125,8 @@ This is an interactive graph that shows Life Expectancy (from the Happy Planet I
 
 While there is no clear correlation from this graph that exporting oil significantly relates to a country's life expectancy, there are a couple interesting points to note. For one, Kuwait leads the world in exports, and also seemingly enjoys a relatively high life expectancy. In another instance, two countries that are in similar areas of the world, Kazakhstan and Azerbaijan, have drastically different amounts of exports, yet share similar life expectancy numbers. I think it is safe to conclude that life expectancy cannot be explained by simply one variable, and there are likely many other factors that contribute to it.
 
-
 # Shiny App: Network Graphs to Explain Trading Partnerships
+
 ```{r}
 library(rvest)
 library(tidygraph)
@@ -178,6 +177,7 @@ ggraph(network_obj |> mutate(centrality = centrality_authority()),
 While this graph does show oil trade networks, it's extremely messy. I want to fix it so that the user can select a country, and see the trade network for that individual country. My goal is that this can be used as a tool to predict who is affected the most by any global issue that affects oil trade or production.
 
 # Shiny App
+
 ```{r}
 library(shiny)
 country_choices <- unique(nodes$name)
@@ -203,9 +203,14 @@ server <- function(input, output, session) {
   
     output$network_plot <- renderPlot({
 
-edges <- filter(from == input$country_select)
-  
-network_obj <- tbl_graph(nodes = input$country_select, edges = edges, directed = FALSE)
+edges_filtered <- edges %>%
+  filter(from %in% valid_nodes & to %in% valid_nodes) %>%
+  filter(from == input$country_select)
+
+nodes_filtered <- nodes %>%
+  filter(name %in% c(edges_filtered$from, edges_filtered$to))
+
+network_obj <- tbl_graph(nodes = nodes_filtered, edges = edges_filtered, directed = FALSE)
 
     ggraph(network_obj |> mutate(centrality = centrality_authority()),
                             layout = "fr") +
@@ -221,11 +226,3 @@ network_obj <- tbl_graph(nodes = input$country_select, edges = edges, directed =
 shinyApp(ui, server)
 
 ```
-
-
-
-
-
-
-
-
