@@ -90,7 +90,7 @@ According to the 2023 UN Comtrade Data, the United States, who has lead the worl
 
 Another data point I found interesting was Canada. Canada has the third most oil reserves on the planet, so I was curious as to why the United States exports so much crude to Canada. Despite their vast reserves, Canada does not produce as much oil as many other countries, and it can be more cost effective for US companies to export oil to Canadian refineries than to ship them across the US to be refined, which explains the high exports found in the data.
 
-# Second Graph:  Since oil is considered a key economic resource that is highly valued, I want to see if there is a clear correlation to the amount of oil exported from a country and it's life expectancy. I also wanted to color the points by region, to see what regions of the world most rely on imported oil.
+# Second Graph: Since oil is considered a key economic resource that is highly valued, I want to see if there is a clear correlation to the amount of oil exported from a country and it's life expectancy. I also wanted to color the points by region, to see what regions of the world most rely on imported oil.
 
 ```{r}
 library(fuzzyjoin)
@@ -226,3 +226,5 @@ network_obj <- tbl_graph(nodes = nodes_filtered, edges = edges_filtered, directe
 shinyApp(ui, server)
 
 ```
+
+

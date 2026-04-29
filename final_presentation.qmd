@@ -1,5 +1,5 @@
 ---
-title: "Project Presentation"
+title: "Final Presentation: Global Oil Trade Networks"
 author: "Baxter Lowell"
 format: 
   revealjs:
@@ -75,7 +75,7 @@ Life Expectancy, Population, Governance Rank, GDP Per capita.
 
 ## Question(s) of Interest
 
-Who does the US export oil to? Does exporting oil prop up an economy well enough to directly relate to a higher quality of life? What do trade networks look like for varying countries across the globe?
+Who does the US export oil to? Does exporting oil prop up an economy well enough to directly relate to a higher quality of life? What do trade networks look like for varying countries across the globe and how can this help explain who is effected most by global events such as conflicts, shortages, etc.?
 
 ## Graph 1: USA Crude Oil Exports
 
