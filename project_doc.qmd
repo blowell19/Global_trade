@@ -1,5 +1,5 @@
 ---
-title: "project_doc"
+title: "Final Project: Exploring Oil Trade Networks"
 author: "Baxter Lowell"
 format: 
   html:
@@ -52,16 +52,17 @@ global_exports_clean = global_exports_oil %>%
   )%>%
    slice(-560)
 ```
+# Abstract:
 
-# Final Project: Exploring Global Oil Trade
+For my project, I am using data from 2023 (the most recent public data) from the UN Comtrade database, which is a comprehensive database that tracks global trade data. It is used by organizations such as the World Bank to help track global trade trends. With this data I was able to find some of the major US trading partners, see if oil exportation has any relationship to a quality of life measurement, and view trading networks for individual countries.
+
+# Final Project Introduction: Exploring Global Oil Trade
 
 For my final project, I will be exploring exports of crude oil from different nations around the world. Oil trade is constantly brought up both in economic, political and military contexts, especially given the strain on global oil trade due to the current conflict in Iran and the uncertainty surrounding the Straight of Hormuz. Crude oil is widely considered the most valuable commodity on earth, and is used to provide energy for transportation systems and is a key ingredient in plastics, pharmaceuticals, and other synthetic material production. I thought it would be interesting to explore who trades with who - and how much, to help understand how disruptions may affect different countries based on their export/import statistics.
 
 Some questions I look to answer include: With whom does the USA export the most oil to? Which countries are most reliant on outside sources for oil? Do high export/importers see a better quality of life?
 
 I also aim to create a shiny app that uses the database to give users a way to explore who trades with who. By creating an interactive model, I want users to be able to use my app to help answer their own questions, whether they are driven by economic, political, or strategic interests.
-
-For my project, I am using data from 2023 (the most recent public data) from the UN Comtrade database, which is a comprehensive database that tracks global trade data. It is used by organizations such as the World Bank to help track global trade trends. The data is also relied on by governments, academics, economists, businesses and political scientists to help them make informed decisions about global trade.
 
 # First Graph: Who does the United States export oil to?
 
@@ -233,6 +234,12 @@ shinyApp(ui, server)
 For an example of how this app could be used, I'll look at who could be most effected by the current closure of the Strait of Hormuz. According to EnergyNow.com, China exports the most oil through the Strait. When we run the app and Select China, it shows us that they export oil to Malaysia, Singapore and Korea. Using this tool, we could expect to see these countries greatly effected by the closure of the Strait. 
 
 My goal with this app was to create a tool that makes it easy for users to analyze trade markets. This could have been done with any other product, and could have been done in different ways using data over time while controlling for a single country, or even looking at regional trade networks. 
+
+# Future Work:
+
+If time was not a constraint for me, I would have liked to look at trade networks over time, maybe while controlling for a select few countries. I'd like to see how different key players in oil trade have changed with whom they trade with over time, and try and explore why those changes may have occured.
+
+Some limitations for me during this project included my data. It was tough for me to clean my data in a way that made it easy to work with, and it was even harder to join my dataset with another while still keeping relevant variables. I wish I knew a little bit more about cleaning and joining datasets, as that would make it easier for me to continue to incorporate additional data sets to look at even more variables that could enhance my analysis.
 
 # AI Appendix:
 
