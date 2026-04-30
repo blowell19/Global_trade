@@ -4,12 +4,13 @@ author: "Baxter Lowell"
 format: gfm
 editor: visual
 prefer-html: true
+execute:
+  echo: false
 ---
 
 
 ```{r}
 # read in data (both USA and global oil exports)
-#| echo: FALSE
 
 library(tidyverse)
 library(readr)
