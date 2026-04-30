@@ -147,13 +147,6 @@ nodes <- network_graph_data %>%
   ) %>%
   filter(!is.na(name)) %>%
   distinct(name, .keep_all = TRUE)
-#nodes <- network_graph_data %>%
-  #select(to, from, Country, Region, GovernanceRank, GDPcapita, Population)%>%
- # filter(!is.na(from) & !is.na(to)) %>%
- # distinct(Country, .keep_all = TRUE)%>% 
-  #.keep_all came from a ChatGPT Prompt asking "Why am I losing variables in my shiny app?"
- # slice(-89)%>%
- # rename(name = Country)
 
 valid_nodes <- nodes$name
 
@@ -194,7 +187,7 @@ ui <- fluidPage(
   sidebarPanel(
     selectInput("country_select", label = "Select a Country", choices = country_choices),
     selectInput("color_select", label = "Select an Additional Variable", choices =
-                  c("Population", "GovernanceRank", "Region", "GDPcapita", "LifeExpectancy"))
+                  c("GovernanceRank", "Region"))
 ),
 
 mainPanel(
@@ -217,8 +210,7 @@ nodes_filtered <- nodes %>%
   filter(name %in% c(edges_filtered$from, edges_filtered$to))%>%
   mutate(
     Population = as.numeric(Population),
-    GDPcapita = as.numeric(GDPcapita),
-    GovernanceRank = as.numeric(GovernanceRank)
+    GDPcapita = as.numeric(GDPcapita)
   )
 
 network_obj <- tbl_graph(nodes = nodes_filtered, edges = edges_filtered, directed = FALSE)
@@ -238,7 +230,20 @@ shinyApp(ui, server)
 
 ```
 
+For an example of how this app could be used, I'll look at who could be most effected by the current closure of the Strait of Hormuz. According to EnergyNow.com, China exports the most oil through the Strait. When we run the app and Select China, it shows us that they export oil to Malaysia, Singapore and Korea. Using this tool, we could expect to see these countries greatly effected by the closure of the Strait. 
+
+My goal with this app was to create a tool that makes it easy for users to analyze trade markets. This could have been done with any other product, and could have been done in different ways using data over time while controlling for a single country, or even looking at regional trade networks. 
+
+# AI Appendix:
+
+Prompt I gave Claude: "Why am I getting an error that says I have na's in my edgelist, even though my to and from columns contain no na values?"
+
+Code I used to fix the problem: 
+
 ```{r}
-names(nodes)
+valid_nodes <- nodes$name
+
+edges <- edges %>%
+  filter(from %in% valid_nodes & to %in% valid_nodes)
 ```
 
