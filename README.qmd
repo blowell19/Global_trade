@@ -9,6 +9,7 @@ prefer-html: true
 
 ```{r}
 # read in data (both USA and global oil exports)
+#| echo: FALSE
 
 library(tidyverse)
 library(readr)
