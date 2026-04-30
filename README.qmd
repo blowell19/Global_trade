@@ -64,3 +64,26 @@ For this project I am looking at global crude oil trade data from 2023. My data 
 I want to explore both trade networks of crude oil for both the United States and the entire world. Some basic questions I am looking to answer are; Who does the US export the most oil to? Does exporting oil help to lead to a better quality of life? What do trade networks look like for individual countries?
 
 The goal of this project is to create a tool that allows users to analyze trade networks of a country of their choosing. Tools like this can be used to try and predict who will be most effected by global events that cause oil shortages or supply issues.
+
+### First Graph: Who does the United States export oil to?
+
+```{r}
+usa_exports_clean %>%
+  filter(Importer != "W00") %>%
+  filter(partnerDesc != "Other Asia, nes")%>%
+  arrange(desc(quantity_bbl))%>%
+  slice_head(n = 20)%>%
+  mutate(
+    partnerDesc = fct_reorder(partnerDesc, quantity_bbl, .desc = TRUE))%>%
+
+ggplot(data = ., aes(x = partnerDesc, y = quantity_bbl))+
+  geom_col()+
+  labs(title = "Top 20 US Crude Oil Export Destinations (2023)",
+       x = "Partners",
+       y = "Annual Barrels (BBL)",
+       caption = "*Data from UN Comtrade Database 2023 Data"
+       )+
+  theme_bw()+
+  coord_flip()
+  
+```

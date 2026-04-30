@@ -32,3 +32,7 @@ The goal of this project is to create a tool that allows users to
 analyze trade networks of a country of their choosing. Tools like this
 can be used to try and predict who will be most effected by global
 events that cause oil shortages or supply issues.
+
+### First Graph: Who does the United States export oil to?
+
+![](README_files/figure-commonmark/unnamed-chunk-2-1.png)
