@@ -50,10 +50,11 @@ global_exports_clean = global_exports_oil %>%
   )%>%
    slice(-560)
 ```
+
 ### Data
 
-  For this project I am looking at global crude oil trade data from 2023. My data comes from the United Nations Comtrade Data set, which is a comprehensive database for global trade, including hundreds of products, imports and exports, and more. I also am using the Happy Planet Index to introduce some additional variables.
- 
+For this project I am looking at global crude oil trade data from 2023. My data comes from the United Nations Comtrade Data set, which is a comprehensive database for global trade, including hundreds of products, imports and exports, and more. I also am using the Happy Planet Index to introduce some additional variables.
+
 ### Questions
 
 I want to explore both trade networks of crude oil for both the United States and the entire world. Some basic questions I am looking to answer are; Who does the US export the most oil to? Does exporting oil help to lead to a better quality of life? What do trade networks look like for individual countries?
@@ -81,6 +82,7 @@ ggplot(data = ., aes(x = partnerDesc, y = quantity_bbl))+
 ```
 
 ### Plotly Graph: Life Expectancy vs Barrels of Oil Exported
+
 ```{r}
 
 library(fuzzyjoin)
@@ -110,4 +112,3 @@ region_plot <- ggplot(data = global_export_region1, aes(x = LifeExpectancy, y = 
 
 ggplotly(p = region_plot, tooltip = "label")
 ```
-
