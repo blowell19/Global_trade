@@ -52,6 +52,7 @@ global_exports_clean = global_exports_oil %>%
   )%>%
    slice(-560)
 ```
+
 # Abstract:
 
 For my project, I am using data from 2023 (the most recent public data) from the UN Comtrade database, which is a comprehensive database that tracks global trade data. It is used by organizations such as the World Bank to help track global trade trends. With this data I was able to find some of the major US trading partners, see if oil exportation has any relationship to a quality of life measurement, and view trading networks for individual countries.
@@ -231,9 +232,9 @@ shinyApp(ui, server)
 
 ```
 
-For an example of how this app could be used, I'll look at who could be most effected by the current closure of the Strait of Hormuz. According to EnergyNow.com, China exports the most oil through the Strait. When we run the app and Select China, it shows us that they export oil to Malaysia, Singapore and Korea. Using this tool, we could expect to see these countries greatly effected by the closure of the Strait. 
+For an example of how this app could be used, I'll look at who could be most effected by the current closure of the Strait of Hormuz. According to EnergyNow.com, China exports the most oil through the Strait. When we run the app and Select China, it shows us that they export oil to Malaysia, Singapore and Korea. Using this tool, we could expect to see these countries greatly effected by the closure of the Strait.
 
-My goal with this app was to create a tool that makes it easy for users to analyze trade markets. This could have been done with any other product, and could have been done in different ways using data over time while controlling for a single country, or even looking at regional trade networks. 
+My goal with this app was to create a tool that makes it easy for users to analyze trade markets. This could have been done with any other product, and could have been done in different ways using data over time while controlling for a single country, or even looking at regional trade networks.
 
 # Future Work:
 
@@ -245,7 +246,7 @@ Some limitations for me during this project included my data. It was tough for m
 
 Prompt I gave Claude: "Why am I getting an error that says I have na's in my edgelist, even though my to and from columns contain no na values?"
 
-Code I used to fix the problem: 
+Code I used to fix the problem:
 
 ```{r}
 valid_nodes <- nodes$name
@@ -253,4 +254,3 @@ valid_nodes <- nodes$name
 edges <- edges %>%
   filter(from %in% valid_nodes & to %in% valid_nodes)
 ```
-
